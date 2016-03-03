@@ -9,3 +9,29 @@
         width:100%;
         float:left;
     }
+
+    #header {
+        background-color: blue;
+          position:fixed;
+         z-index:99998;
+             /*Making sure it sticks to left of window in IE7*/
+              left:0;
+             /*Change to reflect height of your header.
+             Remember to accomadate for padding!*/
+             height:100px;
+    }
+
+    #content {
+        margin-top:100px;;
+        float:left;
+                /*Change to reflect width of your content.
+                Remember to accomadate for padding!*/
+                width:900px;
+    }
+
+    #footer {
+        background-color: blue;
+        position:fixed;
+        bottom:0;
+        z-index:999999;
+    }
