@@ -1,95 +1,139 @@
-$(function() {
+/*
+	Stellar by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+*/
 
-	
-/* ----- Main Menu ----- */
-	
-	if($().mobileMenu) {
-		$('#header nav').mobileMenu();
-	}
+(function($) {
 
-/* ----- Carousels & Sliders ----- */
-	
-	// default flex parameters
-	if($().flexslider) {
-		$('.flexslider').flexslider({
-			controlNav: true,
-			directionalNav: true,
-			slideshow: false
-		});
-	}
-
-/* ----- Navigation Scroll ----- */
-
-	$('#header nav, .page-title, #copyright').localScroll({
-		offset: {left: 0, top: -99}
+	skel.breakpoints({
+		xlarge: '(max-width: 1680px)',
+		large: '(max-width: 1280px)',
+		medium: '(max-width: 980px)',
+		small: '(max-width: 736px)',
+		xsmall: '(max-width: 480px)',
+		xxsmall: '(max-width: 360px)'
 	});
-	
-	//Detecting user's scroll
-	$(window).scroll(function() {
 
-		offsetTolerance = 50;
-		
-		headerWrapper = parseInt($('#header').outerHeight());
-	
-		//Check scroll position
-		scrollPosition	= parseInt($(this).scrollTop());
-		
-		//Move trough each menu and check its position with scroll position then add current class
-		$('#header nav a').each(function() {
+	$(function() {
 
-			thisHref = $(this).attr('href');
-			thisTruePosition = parseInt($(thisHref).offset().top);
-			thisPosition = thisTruePosition - headerWrapper - offsetTolerance;
-			
-			if(scrollPosition >= thisPosition) {
+		var	$window = $(window),
+			$body = $('body'),
+			$main = $('#main');
 
-				$('.current-menu-item').removeClass('current-menu-item');
-				$('#header nav a[href='+ thisHref +']').parent('li').addClass('current-menu-item');
+		// Disable animations/transitions until the page has loaded.
+			$body.addClass('is-loading');
+
+			$window.on('load', function() {
+				window.setTimeout(function() {
+					$body.removeClass('is-loading');
+				}, 100);
+			});
+
+		// Fix: Placeholder polyfill.
+			$('form').placeholder();
+
+		// Prioritize "important" elements on medium.
+			skel.on('+medium -medium', function() {
+				$.prioritize(
+					'.important\\28 medium\\29',
+					skel.breakpoint('medium').active
+				);
+			});
+
+		// Nav.
+			var $nav = $('#nav');
+
+			if ($nav.length > 0) {
+
+				// Shrink effect.
+					$main
+						.scrollex({
+							mode: 'top',
+							enter: function() {
+								$nav.addClass('alt');
+							},
+							leave: function() {
+								$nav.removeClass('alt');
+							},
+						});
+
+				// Links.
+					var $nav_a = $nav.find('a');
+
+					$nav_a
+						.scrolly({
+							speed: 1000,
+							offset: function() { return $nav.height(); }
+						})
+						.on('click', function() {
+
+							var $this = $(this);
+
+							// External link? Bail.
+								if ($this.attr('href').charAt(0) != '#')
+									return;
+
+							// Deactivate all links.
+								$nav_a
+									.removeClass('active')
+									.removeClass('active-locked');
+
+							// Activate link *and* lock it (so Scrollex doesn't try to activate other links as we're scrolling to this one's section).
+								$this
+									.addClass('active')
+									.addClass('active-locked');
+
+						})
+						.each(function() {
+
+							var	$this = $(this),
+								id = $this.attr('href'),
+								$section = $(id);
+
+							// No section for this link? Bail.
+								if ($section.length < 1)
+									return;
+
+							// Scrollex.
+								$section.scrollex({
+									mode: 'middle',
+									initialize: function() {
+
+										// Deactivate section.
+											if (skel.canUse('transition'))
+												$section.addClass('inactive');
+
+									},
+									enter: function() {
+
+										// Activate section.
+											$section.removeClass('inactive');
+
+										// No locked links? Deactivate all links and activate this section's one.
+											if ($nav_a.filter('.active-locked').length == 0) {
+
+												$nav_a.removeClass('active');
+												$this.addClass('active');
+
+											}
+
+										// Otherwise, if this section's link is the one that's locked, unlock it.
+											else if ($this.hasClass('active-locked'))
+												$this.removeClass('active-locked');
+
+									}
+								});
+
+						});
 
 			}
-		});
-		
-		//If we're at the bottom of the page, move pointer to the last section
-		bottomPage	= parseInt($(document).height()) - parseInt($(window).height());
-		
-		if(scrollPosition == bottomPage || scrollPosition >= bottomPage) {
-		
-			$('.current-menu-item').removeClass('current-menu-item');
-			$('#header nav a:last').parent('li').addClass('current-menu-item');
-		}
+
+		// Scrolly.
+			$('.scrolly').scrolly({
+				speed: 1000
+			});
+
 	});
 
-
-
-/* ----- Forms ----- */	
-
-	if (!Modernizr.input.placeholder){
-		$("input, textarea").each(function(){
-			if($(this).val()=="" && $(this).attr("placeholder")!=""){
-				$(this).val($(this).attr("placeholder"));
-				$(this).focus(function(){
-					if($(this).val()==$(this).attr("placeholder")) $(this).val("");
-				});
-				$(this).blur(function(){
-					if($(this).val()=="") $(this).val($(this).attr("placeholder"));
-				});
-			}
-		});
-	}
-	
-	
-	
-/* ----- Modal Window ----- */	
-	
-	$("a[data-toggle=modal]").click(function(event){
-		event.preventDefault();
-		$(this).next().modal({
-			maxWidth: 940,
-			opacity: 65,
-			closeClass: "close",
-			overlayCss: { background: "#000" },
-			autoResize: true
-		});
-	});
-	
-});
+})(jQuery);
