@@ -1,6 +1,6 @@
 import * as PIXI from "https://cdn.skypack.dev/pixi.js";
 import { KawaseBlurFilter } from "https://cdn.skypack.dev/@pixi/filter-kawase-blur";
-import SimplexNoise from "https://cdn.skypack.dev/simplex-noise";
+import { createNoise2D } from "https://cdn.skypack.dev/simplex-noise@4.0.0";
 import hsl from "https://cdn.skypack.dev/hsl-to-hex";
 import debounce from "https://cdn.skypack.dev/debounce";
 
@@ -14,8 +14,7 @@ function map(n, start1, end1, start2, end2) {
   return ((n - start1) / (end1 - start1)) * (end2 - start2) + start2;
 }
 
-// Create a new simplex noise instance
-const simplex = new SimplexNoise();
+const noise2D = createNoise2D();
 
 // ColorPalette class
 class ColorPalette {
@@ -142,9 +141,9 @@ class Orb {
 
   update() {
     // self similar "psuedo-random" or noise values at a given point in "time"
-    const xNoise = simplex.noise2D(this.xOff, this.xOff);
-    const yNoise = simplex.noise2D(this.yOff, this.yOff);
-    const scaleNoise = simplex.noise2D(this.xOff, this.yOff);
+    const xNoise = noise2D(this.xOff, this.xOff);
+    const yNoise = noise2D(this.yOff, this.yOff);
+    const scaleNoise = noise2D(this.xOff, this.yOff);
 
     // map the xNoise/yNoise values (between -1 and 1) to a point within the orb's bounds
     this.x = map(xNoise, -1, 1, this.bounds["x"].min, this.bounds["x"].max);
@@ -182,7 +181,7 @@ const app = new PIXI.Application({
   // auto adjust size to fit the current window
   resizeTo: window,
   // transparent background, we will be creating a gradient background later using CSS
-  transparent: true
+  backgroundAlpha: 0
 });
 
 // Create colour palette
