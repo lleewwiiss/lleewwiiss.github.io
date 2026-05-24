@@ -1,4 +1,8 @@
 :root {
+    --hue: 260;
+    --hue-complimentary1: 290;
+    --hue-complimentary2: 320;
+
     --dark-color: hsl(var(--hue), 100%, 9%);
     --light-color: hsl(var(--hue), 95%, 98%);
     --base: hsl(var(--hue), 95%, 50%);
@@ -27,23 +31,107 @@
 
   body {
     max-width: 1920px;
-    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
     display: grid;
     place-items: center;
     padding: 2rem;
     font-family: var(--font-family);
     color: var(--dark-color);
     background: var(--bg-gradient);
+    overflow-x: hidden;
   }
 
   .orb-canvas {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
+    overflow: hidden;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
+    contain: layout paint;
+  }
+
+  .orb {
+    position: absolute;
+    display: block;
+    border-radius: 999rem;
+    opacity: 0.5;
+    background: radial-gradient(
+      circle,
+      hsl(var(--orb-hue), 95%, 74%) 0%,
+      hsl(var(--orb-hue), 95%, 62%) 38%,
+      hsla(var(--orb-hue), 95%, 62%, 0) 72%
+    );
+    transform: translate3d(var(--orb-from-x), var(--orb-from-y), 0) scale(0.92);
+    animation: orb-float var(--orb-duration) ease-in-out infinite alternate;
+  }
+
+  .orb--1 {
+    --orb-hue: var(--hue);
+    --orb-duration: 22s;
+    --orb-from-x: 0;
+    --orb-from-y: 0;
+    --orb-to-x: -8vmax;
+    --orb-to-y: -5vmax;
+    width: 46vmax;
+    height: 46vmax;
+    right: -12vmax;
+    bottom: -14vmax;
+  }
+
+  .orb--2 {
+    --orb-hue: var(--hue-complimentary1);
+    --orb-duration: 28s;
+    --orb-from-x: 0;
+    --orb-from-y: 0;
+    --orb-to-x: 7vmax;
+    --orb-to-y: 4vmax;
+    width: 34vmax;
+    height: 34vmax;
+    right: 8vmax;
+    top: -12vmax;
+  }
+
+  .orb--3 {
+    --orb-hue: var(--hue-complimentary2);
+    --orb-duration: 24s;
+    --orb-from-x: 0;
+    --orb-from-y: 0;
+    --orb-to-x: -5vmax;
+    --orb-to-y: 8vmax;
+    width: 26vmax;
+    height: 26vmax;
+    left: -10vmax;
+    bottom: 8vmax;
+  }
+
+  .orb--4 {
+    --orb-hue: var(--hue);
+    --orb-duration: 30s;
+    --orb-from-x: 0;
+    --orb-from-y: 0;
+    --orb-to-x: 6vmax;
+    --orb-to-y: -6vmax;
+    width: 22vmax;
+    height: 22vmax;
+    left: 12vmax;
+    top: 12vmax;
+  }
+
+  .animations-paused .orb {
+    animation-play-state: paused;
+  }
+
+  @keyframes orb-float {
+    from {
+      opacity: 0.45;
+      transform: translate3d(var(--orb-from-x), var(--orb-from-y), 0) scale(0.92);
+    }
+
+    to {
+      opacity: 0.65;
+      transform: translate3d(var(--orb-to-x), var(--orb-to-y), 0) scale(1.08);
+    }
   }
 
   strong {
@@ -51,9 +139,10 @@
   }
 
   .overlay {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 1140px;
-    max-height: 640px;
     padding: 8rem 6rem;
     display: flex;
     align-items: center;
@@ -97,10 +186,18 @@
     width: 100%;
     max-width: 30rem;
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .overlay__btns:last-child {
+    margin-bottom: 0;
   }
 
   .overlay__btn {
-    width: 50%;
+    flex: 1 1 8rem;
+    width: auto;
     height: 2.5rem;
     display: flex;
     justify-content: center;
@@ -113,7 +210,6 @@
     border-radius: 0.5rem;
     transition: transform 150ms ease;
     outline-color: hsl(var(--hue), 95%, 50%);
-    margin-bottom: 12px;
   }
 
   .overlay__btn:hover {
@@ -125,7 +221,6 @@
     background: transparent;
     color: var(--dark-color);
     border: 2px solid var(--dark-color);
-    margin-right: 0.75rem;
   }
 
   .overlay__btn-emoji {
@@ -146,6 +241,12 @@
   @media (prefers-contrast: high) {
     .orb-canvas {
       display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb {
+      animation: none;
     }
   }
 
@@ -188,12 +289,8 @@
     }
 
     .overlay__btn {
+      flex-basis: 100%;
       width: 100%;
       font-size: 0.75rem;
-      margin-right: 0;
-    }
-
-    .overlay__btn:first-child {
-      margin-bottom: 1rem;
     }
   }
